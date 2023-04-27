@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="m-5">
+    <header class="m-5 flex justify-between">
+        <h2 class="font-semibold text-2xl ml-10">Categories</h2>
+        <div class="flex flex-row justify-evenly">
+            <button
+                class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                Create Category
+            </button>
+            <button
+                class="ml-5 bg-blue-300 text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                Update Category
+            </button>
+            <button
+                class="ml-5 bg-red-300 text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                Delete Category
+            </button>
+        </div>
+    </header>
+
+    <div
+        class="max-w-lg mx-16 p-6 bg-white border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <div class="flex justify-between">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Default</h5>
+            <div class="flex">
+                <p class="text-gray-500 text-lg">346.54</p>
+                <p class="text-black text-xl">/500</p>
+            </div>
+        </div>
+        <div class="flex justify-end">
+            <button class="bg-[#85bb65] px-4 h-7  rounded border border-black hover:text-white hover:scale-125">
+                Add
+            </button>
+        </div>
+        <p class="mb-3 underline font-normal text-gray-700 dark:text-gray-400">Transactions</p>
+        <div id="transactions" class="flex flex-col h-full">
+            <div class="flex justify-between flex-wrap mb-5">
+                <p class="break-all w-36">1 - McDonald's</p>
+                <p>$8.54</p>
+                <button class="bg-blue-300 px-4 h-7 rounded border border-black hover:text-white hover:scale-125">
+                    Update
+                </button>
+                <button class="bg-red-300 px-4 h-7 rounded border border-black hover:text-white hover:scale-125">
+                    Delete
+                </button>
+            </div>
+            <div class="flex justify-between flex-wrap mb-5">
+                <p class="break-all w-36">2 - School Parking</p>
+                <p>$338</p>
+                <button class="bg-blue-300 px-4 h-7 rounded border border-black hover:text-white hover:scale-125">
+                    Update
+                </button>
+                <button class="bg-red-300 px-4 h-7 rounded border border-black hover:text-white hover:scale-125">
+                    Delete
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

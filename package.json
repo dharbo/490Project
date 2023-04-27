@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "tailwind": "npx tailwindcss -i ./static/src/input.css -o ./static/dist/css/output.css --watch",
+    "flask": "python3 app.py",
+    "dev": "npm-run-all -p tailwind flask"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.1"
+  },
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

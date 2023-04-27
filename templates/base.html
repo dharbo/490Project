@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{url_for('static', filename='dist/css/output.css')}}">
+    {% if title %}
+    <title>{{title}}</title>
+    {% else %}
+    <title>Home</title>
+    {% endif %}
+</head>
+
+<body>
+    <nav class="bg-[#85bb65] border-gray-200 dark:bg-gray-900">
+        <div class="flex flex-wrap items-center justify-between ml-2 p-4">
+            <a href=".//" class="flex items-center">
+                <img src="../static/src/moneyicon.png" class="rounded-full border border-black h-20 mr-5"
+                    alt="App Logo" />
+                <span class="self-center text-3xl font-semibold whitespace-nowrap">Expense Tracker</span>
+            </a>
+            {% if homepage == "true": %}
+            <div class="mr-10">
+                <a href=".//">
+                    <button
+                        class="bg-white hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-14 border border-black rounded">
+                        Log Out
+                    </button>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    {% block content %} {% endblock %}
+</body>
+
+</html>

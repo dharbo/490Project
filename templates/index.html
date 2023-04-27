@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col justify-center items-center mt-8 mx-8">
+    <p class="text-2xl my-2 font-medium">
+        Welcome!
+    </p>
+    <p class="text-xl my-2 font-normal">
+        Are you ready to get your finances in check by keeping track of your expenses?
+    </p>
+    <p class="text-xl my-2 font-normal">
+        Well, you've come to the right place because here at Expense Tracker we offer many features
+        to help you reach your financial goals!
+    </p>
+    <p class="text-xl my-6 font-normal">
+        Just click Create Account to create an account
+    </p>
+    <p class="text-xl my-6 font-normal">
+        Or
+    </p>
+    <p class="text-xl my-6 font-normal">
+        Login to view your Homepage if you already have an account
+    </p>
+</div>
+<div class="flex flex-row justify-center items-center my-4">
+    <a href="./signup">
+        <button
+            class="mr-5 bg-transparent hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-5 border border-black rounded">
+            Create Account
+        </button>
+    </a>
+    <a href="./login">
+        <button class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-14 border border-black hover:text-white rounded">
+            Login
+        </button>
+    </a>
+</div>
+{% endblock %}
