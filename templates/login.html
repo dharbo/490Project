@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="flex flex-col justify-center items-center mt-10">
-    <form class="bg-[#85bb65] shadow-md rounded px-8 pt-6 pb-8 mb-4" id="login">
+    <form class="bg-[#85bb65] shadow-md rounded px-8 pt-6 pb-8 mb-4" id="login", method="POST">
         <h1 class="block text-gray-700 text-xl font-bold mb-4">Login</h1>
         <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
@@ -28,6 +28,9 @@
             </button>
         </div>
     </form>
+    {% if retry %}
+    <p>The Username or Password you have entered is invalid. Please try again.</p>
+    {% endif %}
     <p><a class="underline text-blue-500" href="./signup">Don't have an Account yet?</a></p>
 </div>
 {% endblock %}
