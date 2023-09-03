@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, abort
 
 import sqlite3
 
@@ -9,6 +9,8 @@ connection = sqlite3.connect(DATABASE)
 cursor = connection.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS USER (User_Name TEXT PRIMARY KEY, Password TEXT)")
+cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (Category_Name TEXT, User_Name TEXT, Budget_Amount TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), PRIMARY KEY (Category_Name, User_Name))")
+cursor.execute("CREATE TABLE IF NOT EXISTS TRANSACTIONS (Transaction_ID TEXT, Category_Name TEXT, User_Name TEXT, Description TEXT, Money_Spent TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), FOREIGN KEY (Category_Name) REFERENCES CATEGORY (Category_Name), PRIMARY KEY (Transaction_ID, Category_Name, User_Name))")
 
 connection.close()
 
@@ -39,6 +41,8 @@ def signup():
             cursor.execute("INSERT INTO USER VALUES (?, ?)", (username, password,))
             connection.commit()
             connection.close()
+            global user_logged_in
+            user_logged_in = True
             return redirect('home')
 
         else:
@@ -62,8 +66,10 @@ def login():
 
         # If row exists, then user successfully logged in. Otherwise, the inputted username or password was incorrect.
         if row is not None:
+            global user_logged_in
             user_logged_in = True
             connection.close()
+
 
             return redirect('home')
 
@@ -75,7 +81,11 @@ def login():
 
 @app.route('/home')
 def home():
-    return render_template('home.html', title='Home', homepage="true")
+    # This should only be accessed by users who are logged in.
+    if user_logged_in:
+        return render_template('home.html', title='Home', homepage="true")
+    else:
+        abort(403)
 
 if __name__ == '__main__':
     app.run(debug=True)
