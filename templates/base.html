@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static', filename='dist/css/output.css')}}">
     {% if title %}
+        {% if title == 'Home' %}
+            <script defer type="text/javascript" src="../static/js/categoryModal.js"></script>
+        {% endif %}
     <title>{{title}}</title>
     {% else %}
     <title>Home</title>
