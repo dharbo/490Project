@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, abort, flash
 
 import sqlite3
 import uuid
-# import time
 
 # Set up the database
 DATABASE = './database.db'
@@ -15,7 +14,7 @@ cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (Category_Name TEXT, User_Na
 cursor.execute("CREATE TABLE IF NOT EXISTS TRANSACTIONS (Transaction_ID TEXT, Category_Name TEXT, User_Name TEXT, Description TEXT, Money_Spent TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), FOREIGN KEY (Category_Name) REFERENCES CATEGORY (Category_Name), PRIMARY KEY (Transaction_ID, Category_Name, User_Name))")
 
 ## TESTING with transactions
-cursor.execute("INSERT OR IGNORE INTO TRANSACTIONS VALUES (?,?,?,?,?)", ('2','Insurance','david','AAA','200'))
+# cursor.execute("INSERT OR IGNORE INTO TRANSACTIONS VALUES (?,?,?,?,?)", ('4','Insurance','david','Farmers','100'))
 connection.commit()
 ##
 
@@ -39,17 +38,22 @@ def get_category_data():
 
     for category_row in category_rows:
         transactions_for_category = dict()
+        total_spent = 0.0
 
         transactions_rows = cursor.execute("SELECT * FROM TRANSACTIONS WHERE User_Name=? AND Category_Name=?", (user_logged_in[0],category_row[0],)).fetchall()
         for transactions_row in transactions_rows:
             transactions_for_category[f'{transactions_row[0]}'] = {'Description':f'{transactions_row[3]}',
                                                                     'Money_Spent':f'{transactions_row[4]}'}
+            total_spent += float(transactions_row[4])
+        
+        transactions_for_category['Total_Spent'] = f'{total_spent}'
+        transactions_for_category['Budget_Amount'] = f'{float(category_row[2])}'
             
         category_data[f'{category_row[0]}'] = transactions_for_category
 
     connection.close()
 
-    return {'User_Name':f'{user_logged_in[0]}', 'Category_Data':f'{category_data}'}
+    return {'User_Name': f'{user_logged_in[0]}', 'Category_Data': category_data}
 
 @app.route('/')
 def index():
@@ -115,38 +119,84 @@ def login():
 def home():
     # This should only be accessed by users who are logged in.
     if user_logged_in[1]:
-        user_expense_data = get_category_data() # continue from here
+        user_expense_data = get_category_data()
 
-        return render_template('home.html', title='Home', homepage="true")
+        return render_template('home.html', title='Home', homepage="true", user_expense_data=user_expense_data)
     else:
         abort(403)
 
 @app.route('/home/create-category', methods=["POST"])
 def createCategory():
 
-    categoryName = request.form.get('category-name')
+    category_name = request.form.get('category-name')
     budget = request.form.get('budget')
 
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (categoryName, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
 
-    # If row does not exist, add the category. Otherwise alert the user.
+    # If row does not exist, add the category. Otherwise alert the user.  <--- this needs to be worked on
+    # ^ could have an 'ERROR' var with the error msg, and pass to /home to display in html
     if row is None:
-        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (categoryName, user_logged_in[0], budget)) ## Tuple is needed for insert
+        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (category_name, user_logged_in[0], budget)) ## Tuple is needed for insert
+        
         connection.commit()
-
-
-        ### TODO: Probably need to add the html category here
-
-
-        ###
-        # connection.close()
     else:
-        # Might need something else to handle this
-        flash("Cannot have duplicate category names. Please pick another one.", "error")
-        # time.sleep(5)
+        print('ERROR in create-category: Category already exists')
+
+    connection.close()
+    return redirect('/home')
+
+@app.route('/home/update-category', methods=["POST"])
+def updateCategory(): ### TODO: just changed the category table, need to also change all rows in the transaction table with old cat-name to new cat-name
+
+    old_category_name = request.form.get('old-category-name')
+    new_category_name = request.form.get('new-category-name')
+    new_budget = request.form.get('new-budget')
+
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (old_category_name, user_logged_in[0],)).fetchone()
+
+    # The row should exist if we want to update it.  <--- need to do something for the else
+    if row is not None:
+        # Update the CATEGORY table
+        cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, new_budget, old_category_name, user_logged_in[0],))
+
+        # Update the TRANSACTIONS table
+        cursor.execute("UPDATE TRANSACTIONS SET Category_Name=? WHERE Category_Name=? AND User_Name=?", (new_category_name, old_category_name, user_logged_in[0],))
+
+        connection.commit()
+    else:
+        print('ERROR in update-category: row does not exist, can\'t update!!!')
+
+    connection.close()
+    return redirect('/home')
+
+@app.route('/home/delete-category', methods=["POST"])
+def deleteCategory():
+
+    category_name = request.form.get('category-name')
+    
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+
+    # The row should exist if we want to update it.  <--- need to do something for the else
+    if row is not None:
+        print("We're in the if condition")
+        # Delete the specified category from the CATEGORY table
+        cursor.execute("DELETE FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],))
+
+        # Delete the transactions associated with the specified category from the TRANSACTIONS table
+        cursor.execute("DELETE FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],))
+
+        connection.commit()
+    else:
+        print('ERROR in remove-category: row does not exist, can\'t remove!!!')
 
     connection.close()
     return redirect('/home')

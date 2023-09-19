@@ -26,3 +26,28 @@ document.getElementById("create-category").addEventListener("click", ()=> {
     return
   });
 
+document.getElementById("update-category").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("update-category-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});
+
+document.getElementById("delete-category").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("delete-category-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});
