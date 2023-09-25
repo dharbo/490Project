@@ -83,7 +83,10 @@
     <div id="create-category-modal" aria-hidden="true" class="hidden mx-auto inset-0 fixed backdrop-blur-sm">
         <div class="flex flex-col justify-center items-center h-[75%]">
             <form class="bg-[#85bb65] w-1/2 px-8 pt-6 pb-8 border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700" id="createCategory" name="createCategory" action="{{ url_for('createCategory') }}" method="POST">
-                <h1 class="block text-gray-700 text-xl font-bold mb-4">Create Category</h1>
+                <div class="flex justify-between">
+                    <h1 class="block text-gray-700 text-xl font-bold mb-4">Create Category</h1>
+                    <button id="close-create-category-modal">&#10006;</button>
+                </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="category-name">
                         Category Name
@@ -115,7 +118,10 @@
     <div id="update-category-modal" aria-hidden="true" class="hidden mx-auto inset-0 fixed backdrop-blur-sm">
         <div class="flex flex-col justify-center items-center h-[75%]">
             <form class="bg-blue-300 w-1/2 px-8 pt-6 pb-8 border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700" id="updateCategory" name="updateCategory" action="{{ url_for('updateCategory') }}" method="POST">
-                <h1 class="block text-gray-700 text-xl font-bold mb-4">Update Category</h1>
+                <div class="flex justify-between">
+                    <h1 class="block text-gray-700 text-xl font-bold mb-4">Update Category</h1>
+                    <button id="close-update-category-modal">&#10006;</button>
+                </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="old-category-name">
                         Old Category Name
@@ -155,7 +161,10 @@
     <div id="delete-category-modal" aria-hidden="true" class="hidden mx-auto inset-0 fixed backdrop-blur-sm">
         <div class="flex flex-col justify-center items-center h-[75%]">
             <form class="bg-red-300 w-1/2 px-8 pt-6 pb-8 border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700" id="deleteCategory" name="deleteCategory" action="{{ url_for('deleteCategory') }}" method="POST">
-                <h1 class="block text-gray-700 text-xl font-bold mb-4">Delete Category</h1>
+                <div class="flex justify-between">
+                    <h1 class="block text-gray-700 text-xl font-bold mb-4">Delete Category</h1>
+                    <button id="close-delete-category-modal">&#10006;</button>
+                </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="category-name">
                         Category Name

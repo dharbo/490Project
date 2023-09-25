@@ -125,6 +125,7 @@ def home():
     else:
         abort(403)
 
+# Endpoint for creating a category.
 @app.route('/home/create-category', methods=["POST"])
 def createCategory():
 
@@ -148,6 +149,7 @@ def createCategory():
     connection.close()
     return redirect('/home')
 
+# Endpoint for updating a category.
 @app.route('/home/update-category', methods=["POST"])
 def updateCategory(): ### TODO: just changed the category table, need to also change all rows in the transaction table with old cat-name to new cat-name
 
@@ -175,6 +177,7 @@ def updateCategory(): ### TODO: just changed the category table, need to also ch
     connection.close()
     return redirect('/home')
 
+# Endpoint for deleting a category.
 @app.route('/home/delete-category', methods=["POST"])
 def deleteCategory():
 

@@ -1,30 +1,42 @@
-// const sqlite3 = require('sqlite3').verbose();
+// TODO: Add for transactions modals
+const closeModalBtns = document.querySelectorAll("#close-create-category-modal, #close-update-category-modal, #close-delete-category-modal")
 
-// let db = new sqlite3.Database('../../database.db', (err) => {              <= doesn't work, require needs other downloads
-//     if (err) {
-//       console.error(err.message);
-//     }
-//     console.log('Connected to the database.');
-//   });
-// console.log('Hello there')
+console.log(closeModalBtns)
 
-// function getElt() {
-//     return document.getElementById("create-category").innerText
-// }
+closeModalBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    console.log(modal)
 
-
-document.getElementById("create-category").addEventListener("click", ()=> {
-    // open modal
-    console.log("Open modal...")
-
-    modal = document.getElementById("create-category-modal")
-    modal.classList.remove("hidden")
-    modal.classList.add("visible")
-
-    console.log("It work!!!")
+    if (btn === document.getElementById("close-create-category-modal")) {
+      modal = document.getElementById("create-category-modal")
+      modal.classList.remove("visible")
+      modal.classList.add("hidden")
+    } else if (btn === document.getElementById("close-update-category-modal")) {
+      modal = document.getElementById("update-category-modal")
+      modal.classList.remove("visible")
+      modal.classList.add("hidden")
+    } else if (btn === document.getElementById("close-delete-category-modal")) {
+      modal = document.getElementById("delete-category-modal")
+      modal.classList.remove("visible")
+      modal.classList.add("hidden")
+    }
 
     return
-  });
+  })
+});
+
+document.getElementById("create-category").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("create-category-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});
 
 document.getElementById("update-category").addEventListener("click", ()=> {
   // open modal
