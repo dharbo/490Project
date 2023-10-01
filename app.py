@@ -204,5 +204,21 @@ def deleteCategory():
     connection.close()
     return redirect('/home')
 
+# Endpoint for adding a transaction.
+@app.route('/home/add-transaction', methods=["POST"])
+def addTransaction():
+
+    # TODO: how would I get the category name from the html?
+    transaction_description = request.form.get('transaction-description')
+    money_spent = request.form.get('money-spent')
+
+    print('in add transaction')
+    print(f'transaction: {transaction_description} -- spent: {money_spent}')
+
+
+
+    return redirect('/home')
+    # user uuid to make a unique transactions_id, pass it to home.html and set the html id to that
+
 if __name__ == '__main__':
     app.run(debug=True)
