@@ -1,5 +1,4 @@
-// TODO: Add for transactions modals
-const closeModalBtns = document.querySelectorAll("#close-create-category-modal, #close-update-category-modal, #close-delete-category-modal, #close-add-transaction-modal")
+const closeModalBtns = document.querySelectorAll("#close-create-category-modal, #close-update-category-modal, #close-delete-category-modal, #close-add-transaction-modal, #close-update-transaction-modal, #close-delete-transaction-modal")
 
 console.log(closeModalBtns)
 
@@ -19,8 +18,16 @@ closeModalBtns.forEach(btn => {
       modal = document.getElementById("delete-category-modal")
       modal.classList.remove("visible")
       modal.classList.add("hidden")
-    } else if (btn.getAttribute("id") === "close-add-transaction-modal") {
+    } else if (btn === document.getElementById("close-add-transaction-modal")) {
       modal = document.getElementById("add-transaction-modal")
+      modal.classList.remove("visible")
+      modal.classList.add("hidden")
+    } else if (btn === document.getElementById("close-update-transaction-modal")) {
+      modal = document.getElementById("update-transaction-modal")
+      modal.classList.remove("visible")
+      modal.classList.add("hidden")
+    } else if (btn === document.getElementById("close-delete-transaction-modal")) {
+      modal = document.getElementById("delete-transaction-modal")
       modal.classList.remove("visible")
       modal.classList.add("hidden")
     }
@@ -72,14 +79,43 @@ document.getElementById("delete-category").addEventListener("click", ()=> {
 });
 
 // Open add-transaction-modal
-const openAddTransactionModalBtns = document.getElementsByClassName("bg-[#85bb65] px-4 h-7 rounded border border-black hover:text-white hover:scale-125")
-for (let btn of openAddTransactionModalBtns) {
-  console.log(btn.id)
-  // console.log(btn.id.split("add-transaction-").filter(item => item)[0])
-  btn.addEventListener("click", () => {
-    modal = document.getElementById("add-transaction-modal")
-    // modal.dataset.categoryName = btn.id.split("add-transaction-").filter(item => item)[0]
-    modal.classList.remove("hidden")
-    modal.classList.add("visible")
-  })
-};
+document.getElementById("add-transaction").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("add-transaction-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});
+
+// Open update-transaction-modal
+document.getElementById("update-transaction").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("update-transaction-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});
+
+// Open delete-transaction-modal
+document.getElementById("delete-transaction").addEventListener("click", ()=> {
+  // open modal
+  console.log("Open modal...")
+
+  modal = document.getElementById("delete-transaction-modal")
+  modal.classList.remove("hidden")
+  modal.classList.add("visible")
+
+  console.log("It work!!!")
+
+  return
+});

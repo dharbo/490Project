@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, abort, flash
 
 import sqlite3
 import uuid
+import datetime
 
 # Set up the database
 DATABASE = './database.db'
@@ -11,12 +12,9 @@ cursor = connection.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS USER (User_Name TEXT PRIMARY KEY, Password TEXT)")
 cursor.execute("CREATE TABLE IF NOT EXISTS CATEGORY (Category_Name TEXT, User_Name TEXT, Budget_Amount TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), PRIMARY KEY (Category_Name, User_Name))")
-cursor.execute("CREATE TABLE IF NOT EXISTS TRANSACTIONS (Transaction_ID TEXT, Category_Name TEXT, User_Name TEXT, Description TEXT, Money_Spent TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), FOREIGN KEY (Category_Name) REFERENCES CATEGORY (Category_Name), PRIMARY KEY (Transaction_ID, Category_Name, User_Name))")
+cursor.execute("CREATE TABLE IF NOT EXISTS TRANSACTIONS (Transaction_ID TEXT, Category_Name TEXT, User_Name TEXT, Description TEXT, Money_Spent TEXT, Date TEXT, FOREIGN KEY (User_Name) REFERENCES USER (User_Name), FOREIGN KEY (Category_Name) REFERENCES CATEGORY (Category_Name), PRIMARY KEY (Transaction_ID, Category_Name, User_Name))")
 
-## TESTING with transactions
-# cursor.execute("INSERT OR IGNORE INTO TRANSACTIONS VALUES (?,?,?,?,?)", ('4','Insurance','david','Farmers','100'))
 connection.commit()
-##
 
 connection.close()
 
@@ -46,8 +44,8 @@ def get_category_data():
                                                                     'Money_Spent':f'{transactions_row[4]}'}
             total_spent += float(transactions_row[4])
         
-        transactions_for_category['Total_Spent'] = f'{total_spent}'
-        transactions_for_category['Budget_Amount'] = f'{float(category_row[2])}'
+        transactions_for_category['Total_Spent'] = f'{total_spent:.2f}'
+        transactions_for_category['Budget_Amount'] = f'{float(category_row[2]):.2f}'
             
         category_data[f'{category_row[0]}'] = transactions_for_category
 
@@ -209,16 +207,100 @@ def deleteCategory():
 def addTransaction():
 
     # TODO: how would I get the category name from the html?
+    category_name = request.form.get('category-name')
     transaction_description = request.form.get('transaction-description')
     money_spent = request.form.get('money-spent')
+    date = str(datetime.datetime.now())
 
     print('in add transaction')
     print(f'transaction: {transaction_description} -- spent: {money_spent}')
+    print(category_name)
 
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
 
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+
+    # Category needs to exist to add a transaction
+    if row is not None:
+        cursor.execute("INSERT INTO TRANSACTIONS VALUES (?, ?, ?, ?, ?, ?)", (None, category_name, user_logged_in[0], transaction_description, money_spent, date)) ## Tuple is needed for insert
+
+        count = 0
+        count = cursor.execute("SELECT COUNT(*) FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+
+        if count:
+            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Category_Name=? AND User_Name=? AND Date=?", (count[0], category_name, user_logged_in[0], date))
+        
+        connection.commit()
+    else:
+        print(f'ERROR in create-category: No category name {category_name}')
+
+    connection.close()
 
     return redirect('/home')
-    # user uuid to make a unique transactions_id, pass it to home.html and set the html id to that
+
+# Endpoint for updating a transaction.
+@app.route('/home/update-transaction', methods=["POST"])
+def updateTransaction():
+
+    category_name = request.form.get('category-name')
+    old_transaction_id = request.form.get('old-transaction-id')
+    new_transaction_description = request.form.get('new-transaction-description')
+    new_money_spent = request.form.get('new-money-spent')
+
+    print(f'data: {category_name} , {old_transaction_id} , {new_transaction_description} , {new_money_spent}')
+
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (old_transaction_id, category_name, user_logged_in[0],)).fetchone()
+
+    # The transaction must exist in order to update it.
+    if row:
+        cursor.execute("UPDATE TRANSACTIONS SET Description=?, Money_Spent=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (new_transaction_description, new_money_spent, old_transaction_id, category_name, user_logged_in[0]))
+
+        connection.commit()
+    
+    else:
+        print(f'ERROR in update-category: No transaction found with {old_transaction_id} , {category_name} and {user_logged_in[0]}')
+
+    connection.close()
+
+    return redirect('/home')
+
+# Endpoint for deleting a transaction.
+@app.route('/home/delete-transaction', methods=["POST"])
+def deleteTransaction():
+    print('in delete transaction')
+
+    category_name = request.form.get('category-name')
+    transaction_id = request.form.get('transaction-id')
+
+    connection = sqlite3.connect(DATABASE)
+    cursor = connection.cursor()
+
+    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, user_logged_in[0],)).fetchone()
+
+    # The transaction must exist in order to delete it.
+    if row:
+        cursor.execute("DELETE FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, user_logged_in[0]))
+
+        transactions = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=? ORDER BY Date", (category_name, user_logged_in[0],)).fetchall()
+
+        id_counter = 1
+        for transaction in transactions:
+            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (id_counter, transaction[0], category_name, user_logged_in[0]))
+            id_counter += 1
+
+        connection.commit()
+    else:
+        print(f'ERROR in delete-category: No transaction found with {transaction_id} , {category_name} and {user_logged_in[0]}')
+
+
+    connection.close()
+
+    return redirect('/home')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
