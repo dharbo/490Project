@@ -53,6 +53,13 @@ def get_category_data():
 
     return {'User_Name': f'{user_logged_in[0]}', 'Category_Data': category_data}
 
+# An acceptable number is any non-negative value.
+def is_acceptable_number(num):
+    # Check if num is not an int or a float. Negative values get handled here.
+    if num.isdigit() or num.replace(".", "", 1).isnumeric():
+        return True
+    return False
+
 @app.route('/')
 def index():
     return render_template('index.html', title='Landing Page')
@@ -73,6 +80,7 @@ def signup():
         # If row does not exist in the database, insert the data. Otherwise make the user retry.
         if row is None:
             cursor.execute("INSERT INTO USER VALUES (?, ?)", (username, password,))
+            cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", ('Default', username, 1000))
             connection.commit()
             connection.close()
             global user_logged_in
@@ -137,8 +145,8 @@ def createCategory():
 
     # If row does not exist, add the category. Otherwise alert the user.  <--- this needs to be worked on
     # ^ could have an 'ERROR' var with the error msg, and pass to /home to display in html
-    if row is None:
-        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (category_name, user_logged_in[0], budget)) ## Tuple is needed for insert
+    if row is None and is_acceptable_number(budget):
+        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (category_name, user_logged_in[0], f'{float(budget):.2f}')) ## Tuple is needed for insert
         
         connection.commit()
     else:
@@ -161,9 +169,9 @@ def updateCategory(): ### TODO: just changed the category table, need to also ch
     row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (old_category_name, user_logged_in[0],)).fetchone()
 
     # The row should exist if we want to update it.  <--- need to do something for the else
-    if row is not None:
+    if row is not None and is_acceptable_number(new_budget):
         # Update the CATEGORY table
-        cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, new_budget, old_category_name, user_logged_in[0],))
+        cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, f'{float(new_budget):.2f}', old_category_name, user_logged_in[0],))
 
         # Update the TRANSACTIONS table
         cursor.execute("UPDATE TRANSACTIONS SET Category_Name=? WHERE Category_Name=? AND User_Name=?", (new_category_name, old_category_name, user_logged_in[0],))
@@ -222,8 +230,8 @@ def addTransaction():
     row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
 
     # Category needs to exist to add a transaction
-    if row is not None:
-        cursor.execute("INSERT INTO TRANSACTIONS VALUES (?, ?, ?, ?, ?, ?)", (None, category_name, user_logged_in[0], transaction_description, money_spent, date)) ## Tuple is needed for insert
+    if row is not None and is_acceptable_number(money_spent):
+        cursor.execute("INSERT INTO TRANSACTIONS VALUES (?, ?, ?, ?, ?, ?)", (None, category_name, user_logged_in[0], transaction_description, f'{float(money_spent):.2f}', date)) ## Tuple is needed for insert
 
         count = 0
         count = cursor.execute("SELECT COUNT(*) FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
@@ -256,8 +264,8 @@ def updateTransaction():
     row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (old_transaction_id, category_name, user_logged_in[0],)).fetchone()
 
     # The transaction must exist in order to update it.
-    if row:
-        cursor.execute("UPDATE TRANSACTIONS SET Description=?, Money_Spent=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (new_transaction_description, new_money_spent, old_transaction_id, category_name, user_logged_in[0]))
+    if row and is_acceptable_number(new_money_spent):
+        cursor.execute("UPDATE TRANSACTIONS SET Description=?, Money_Spent=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (new_transaction_description, f'{float(new_money_spent):.2f}', old_transaction_id, category_name, user_logged_in[0]))
 
         connection.commit()
     
