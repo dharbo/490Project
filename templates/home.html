@@ -4,39 +4,39 @@
 
 <div class="m-5">
     <header class="m-5 flex justify-between">
-        <h2 class="font-semibold text-2xl ml-10">Categories</h2>
-        <div class="flex flex-row justify-evenly">
+        <h2 class="font-semibold text-2xl">Categories</h2>
+        <div class="flex flex-row justify-evenly flex-wrap">
             <button id="create-category"
-                class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-6 border border-black hover:text-white hover:scale-125 rounded">
                 Create Category
             </button>
-            <button id="add-transaction" class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-8 border border-black hover:text-white hover:scale-125 rounded">
+            <button id="add-transaction" class="ml-5 bg-[#85bb65] text-black font-bold py-2 px-4 border border-black hover:text-white hover:scale-125 rounded">
                 Create Transaction
             </button>
             <button id="update-category"
-                class="ml-5 bg-blue-300 text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                class="ml-5 bg-blue-300 text-black font-bold py-2 px-6 border border-black hover:text-white hover:scale-125 rounded">
                 Update Category
             </button>
-            <button id="update-transaction" class="ml-5 bg-blue-300 text-black font-bold py-2 px-8 border border-black hover:text-white hover:scale-125 rounded">
+            <button id="update-transaction" class="ml-5 bg-blue-300 text-black font-bold py-2 px-4 border border-black hover:text-white hover:scale-125 rounded">
                 Update Transaction
             </button>
             <button id="delete-category"
-                class="ml-5 bg-red-300 text-black font-bold py-2 px-10 border border-black hover:text-white hover:scale-125 rounded">
+                class="ml-5 bg-red-300 text-black font-bold py-2 px-6 border border-black hover:text-white hover:scale-125 rounded">
                 Delete Category
             </button>
-            <button id="delete-transaction" class="ml-5 bg-red-300 text-black font-bold py-2 px-8 border border-black hover:text-white hover:scale-125 rounded">
+            <button id="delete-transaction" class="ml-5 bg-red-300 text-black font-bold py-2 px-4 border border-black hover:text-white hover:scale-125 rounded">
                 Delete Transaction
             </button>
         </div>
     </header>
 
     <!-- HTML for the categories/transactions -->
-    <div class="flex">
+    <div class="flex flex-wrap">
 
         {% for category_name in user_expense_data['Category_Data'] %}
 
         <div
-            class="max-w-lg mx-16 p-6 bg-white border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            class="min-w-[40%] mb-5 mx-16 p-6 bg-white border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <div class="flex justify-between">
                 <h5 class="mb-2 mr-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ category_name }}</h5>
                 <div class="flex">
@@ -49,11 +49,11 @@
         
             <div id="transactions" class="flex flex-col h-full">
                 {% for transaction_id in user_expense_data['Category_Data'][category_name] %}
-                    <div class="flex flex-row h-full">
-                    {% if transaction_id != 'Total_Spent' and transaction_id != 'Budget_Amount' %}
-                    <p class="break-all w-36">{{ loop.index }} - {{ user_expense_data['Category_Data'][category_name][transaction_id]['Description'] }}</p>
-                    <p>${{ user_expense_data['Category_Data'][category_name][transaction_id]['Money_Spent'] }}</p>
-                    {% endif %}
+                    <div class="flex flex-row h-full justify-between">
+                        {% if transaction_id != 'Total_Spent' and transaction_id != 'Budget_Amount' %}
+                        <p class="break-all w-36">{{ loop.index }} - {{ user_expense_data['Category_Data'][category_name][transaction_id]['Description'] }}</p>
+                        <p>${{ user_expense_data['Category_Data'][category_name][transaction_id]['Money_Spent'] }}</p>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
