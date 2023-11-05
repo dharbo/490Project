@@ -26,12 +26,9 @@
             </a>
             {% if homepage == "true": %}
             <div class="mr-10">
-                <a href=".//">
-                    <button
-                        class="bg-white hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-14 border border-black rounded">
-                        Log Out
-                    </button>
-                </a>
+                <form action="{{ url_for('logout') }}" method="GET">
+                    <input type="submit" value="Log Out" class="bg-white hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-14 border border-black rounded">
+                </form>
             </div>
             {% endif %}
         </div>

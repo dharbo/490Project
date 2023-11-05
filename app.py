@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, abort, flash
+from flask import Flask, render_template, request, redirect, abort, session, flash
 
 import sqlite3
 import uuid
@@ -18,9 +18,6 @@ connection.commit()
 
 connection.close()
 
-### Need a way to check if a user is logged in. If they aren't they shouldn't be able to access the home page
-user_logged_in = ("", False)
-
 app = Flask('__name__')
 
 app.config['SECRET_KEY'] = uuid.uuid4().hex
@@ -32,13 +29,13 @@ def get_category_data():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    category_rows = cursor.execute("SELECT * FROM CATEGORY WHERE User_Name=?", (user_logged_in[0],)).fetchall()
+    category_rows = cursor.execute("SELECT * FROM CATEGORY WHERE User_Name=?", (session['username'],)).fetchall()
 
     for category_row in category_rows:
         transactions_for_category = dict()
         total_spent = 0.0
 
-        transactions_rows = cursor.execute("SELECT * FROM TRANSACTIONS WHERE User_Name=? AND Category_Name=?", (user_logged_in[0],category_row[0],)).fetchall()
+        transactions_rows = cursor.execute("SELECT * FROM TRANSACTIONS WHERE User_Name=? AND Category_Name=?", (session['username'],category_row[0],)).fetchall()
         for transactions_row in transactions_rows:
             transactions_for_category[f'{transactions_row[0]}'] = {'Description':f'{transactions_row[3]}',
                                                                     'Money_Spent':f'{transactions_row[4]}'}
@@ -51,7 +48,7 @@ def get_category_data():
 
     connection.close()
 
-    return {'User_Name': f'{user_logged_in[0]}', 'Category_Data': category_data}
+    return {'User_Name': f'{session["username"]}', 'Category_Data': category_data}
 
 # An acceptable number is any non-negative value.
 def is_acceptable_number(num):
@@ -62,6 +59,9 @@ def is_acceptable_number(num):
 
 @app.route('/')
 def index():
+
+    # print(f'username/session: {session["username"]} {session["logged_in"]}')
+
     return render_template('index.html', title='Landing Page')
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -83,8 +83,10 @@ def signup():
             cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", ('Default', username, 1000))
             connection.commit()
             connection.close()
-            global user_logged_in
-            user_logged_in = (username, True)
+
+            session['username'] = username
+            session['logged_in'] = True
+
             return redirect('home')
 
         else:
@@ -108,10 +110,12 @@ def login():
 
         # If row exists, then user successfully logged in. Otherwise, the inputted username or password was incorrect.
         if row is not None:
-            global user_logged_in
-            user_logged_in = (username, True)
             connection.close()
 
+            session['username'] = username
+            session['logged_in'] = True
+
+            print(f'username/session: {session["username"]} {session["logged_in"]}')
 
             return redirect('/home')
 
@@ -124,12 +128,23 @@ def login():
 @app.route('/home')
 def home():
     # This should only be accessed by users who are logged in.
-    if user_logged_in[1]:
+    if 'logged_in' in session and session['logged_in'] is True:
         user_expense_data = get_category_data()
 
         return render_template('home.html', title='Home', homepage="true", user_expense_data=user_expense_data)
     else:
         abort(403)
+
+@app.route('/logout')
+def logout():
+    session['username'] = None
+    session['logged_in'] = None
+
+    print("in the logout endpoint")
+    print(f'username/session: {session["username"]} {session["logged_in"]}')
+
+
+    return redirect('/')
 
 # Endpoint for creating a category.
 @app.route('/home/create-category', methods=["POST"])
@@ -141,12 +156,12 @@ def createCategory():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],)).fetchone()
 
     # If row does not exist, add the category. Otherwise alert the user.  <--- this needs to be worked on
     # ^ could have an 'ERROR' var with the error msg, and pass to /home to display in html
     if row is None and is_acceptable_number(budget):
-        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (category_name, user_logged_in[0], f'{float(budget):.2f}')) ## Tuple is needed for insert
+        cursor.execute("INSERT INTO CATEGORY VALUES (?, ?, ?)", (category_name, session['username'], f'{float(budget):.2f}')) ## Tuple is needed for insert
         
         connection.commit()
     else:
@@ -166,15 +181,15 @@ def updateCategory(): ### TODO: just changed the category table, need to also ch
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (old_category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (old_category_name, session['username'],)).fetchone()
 
     # The row should exist if we want to update it.  <--- need to do something for the else
     if row is not None and is_acceptable_number(new_budget):
         # Update the CATEGORY table
-        cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, f'{float(new_budget):.2f}', old_category_name, user_logged_in[0],))
+        cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, f'{float(new_budget):.2f}', old_category_name, session['username'],))
 
         # Update the TRANSACTIONS table
-        cursor.execute("UPDATE TRANSACTIONS SET Category_Name=? WHERE Category_Name=? AND User_Name=?", (new_category_name, old_category_name, user_logged_in[0],))
+        cursor.execute("UPDATE TRANSACTIONS SET Category_Name=? WHERE Category_Name=? AND User_Name=?", (new_category_name, old_category_name, session['username'],))
 
         connection.commit()
     else:
@@ -192,16 +207,16 @@ def deleteCategory():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],)).fetchone()
 
     # The row should exist if we want to update it.  <--- need to do something for the else
     if row is not None:
         print("We're in the if condition")
         # Delete the specified category from the CATEGORY table
-        cursor.execute("DELETE FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],))
+        cursor.execute("DELETE FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],))
 
         # Delete the transactions associated with the specified category from the TRANSACTIONS table
-        cursor.execute("DELETE FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],))
+        cursor.execute("DELETE FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],))
 
         connection.commit()
     else:
@@ -227,17 +242,17 @@ def addTransaction():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],)).fetchone()
 
     # Category needs to exist to add a transaction
     if row is not None and is_acceptable_number(money_spent):
-        cursor.execute("INSERT INTO TRANSACTIONS VALUES (?, ?, ?, ?, ?, ?)", (None, category_name, user_logged_in[0], transaction_description, f'{float(money_spent):.2f}', date)) ## Tuple is needed for insert
+        cursor.execute("INSERT INTO TRANSACTIONS VALUES (?, ?, ?, ?, ?, ?)", (None, category_name, session['username'], transaction_description, f'{float(money_spent):.2f}', date)) ## Tuple is needed for insert
 
         count = 0
-        count = cursor.execute("SELECT COUNT(*) FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, user_logged_in[0],)).fetchone()
+        count = cursor.execute("SELECT COUNT(*) FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=?", (category_name, session['username'],)).fetchone()
 
         if count:
-            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Category_Name=? AND User_Name=? AND Date=?", (count[0], category_name, user_logged_in[0], date))
+            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Category_Name=? AND User_Name=? AND Date=?", (count[0], category_name, session['username'], date))
         
         connection.commit()
     else:
@@ -261,16 +276,16 @@ def updateTransaction():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (old_transaction_id, category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (old_transaction_id, category_name, session['username'],)).fetchone()
 
     # The transaction must exist in order to update it.
     if row and is_acceptable_number(new_money_spent):
-        cursor.execute("UPDATE TRANSACTIONS SET Description=?, Money_Spent=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (new_transaction_description, f'{float(new_money_spent):.2f}', old_transaction_id, category_name, user_logged_in[0]))
+        cursor.execute("UPDATE TRANSACTIONS SET Description=?, Money_Spent=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (new_transaction_description, f'{float(new_money_spent):.2f}', old_transaction_id, category_name, session['username']))
 
         connection.commit()
     
     else:
-        print(f'ERROR in update-category: No transaction found with {old_transaction_id} , {category_name} and {user_logged_in[0]}')
+        print(f'ERROR in update-category: No transaction found with {old_transaction_id} , {category_name} and {session["username"]}')
 
     connection.close()
 
@@ -287,22 +302,22 @@ def deleteTransaction():
     connection = sqlite3.connect(DATABASE)
     cursor = connection.cursor()
 
-    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, user_logged_in[0],)).fetchone()
+    row = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, session['username'],)).fetchone()
 
     # The transaction must exist in order to delete it.
     if row:
-        cursor.execute("DELETE FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, user_logged_in[0]))
+        cursor.execute("DELETE FROM TRANSACTIONS WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (transaction_id, category_name, session['username']))
 
-        transactions = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=? ORDER BY Date", (category_name, user_logged_in[0],)).fetchall()
+        transactions = cursor.execute("SELECT * FROM TRANSACTIONS WHERE Category_Name=? AND User_Name=? ORDER BY Date", (category_name, session['username'],)).fetchall()
 
         id_counter = 1
         for transaction in transactions:
-            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (id_counter, transaction[0], category_name, user_logged_in[0]))
+            cursor.execute("UPDATE TRANSACTIONS SET Transaction_ID=? WHERE Transaction_ID=? AND Category_Name=? AND User_Name=?", (id_counter, transaction[0], category_name, session['username']))
             id_counter += 1
 
         connection.commit()
     else:
-        print(f'ERROR in delete-category: No transaction found with {transaction_id} , {category_name} and {user_logged_in[0]}')
+        print(f'ERROR in delete-category: No transaction found with {transaction_id} , {category_name} and {session["username"]}')
 
 
     connection.close()
