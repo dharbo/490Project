@@ -37,7 +37,7 @@ closeModalBtns.forEach(btn => {
 });
 
 // Open create-category-modal
-document.getElementById("create-category").addEventListener("click", ()=> {
+document.getElementById("create-category").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -51,7 +51,7 @@ document.getElementById("create-category").addEventListener("click", ()=> {
 });
 
 // Open update-category-modal
-document.getElementById("update-category").addEventListener("click", ()=> {
+document.getElementById("update-category").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -65,7 +65,7 @@ document.getElementById("update-category").addEventListener("click", ()=> {
 });
 
 // Open delete-category-modal
-document.getElementById("delete-category").addEventListener("click", ()=> {
+document.getElementById("delete-category").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -79,7 +79,7 @@ document.getElementById("delete-category").addEventListener("click", ()=> {
 });
 
 // Open add-transaction-modal
-document.getElementById("add-transaction").addEventListener("click", ()=> {
+document.getElementById("add-transaction").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -93,7 +93,7 @@ document.getElementById("add-transaction").addEventListener("click", ()=> {
 });
 
 // Open update-transaction-modal
-document.getElementById("update-transaction").addEventListener("click", ()=> {
+document.getElementById("update-transaction").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -107,7 +107,7 @@ document.getElementById("update-transaction").addEventListener("click", ()=> {
 });
 
 // Open delete-transaction-modal
-document.getElementById("delete-transaction").addEventListener("click", ()=> {
+document.getElementById("delete-transaction").addEventListener("click", () => {
   // open modal
   console.log("Open modal...")
 
@@ -119,3 +119,12 @@ document.getElementById("delete-transaction").addEventListener("click", ()=> {
 
   return
 });
+
+document.getElementById("alert-message-btn").addEventListener("click", () => {
+  console.log('closing alert')
+
+  alertMessage = document.getElementById("alert-message")
+
+  alertMessage.remove()
+
+})

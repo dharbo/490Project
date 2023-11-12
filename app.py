@@ -166,6 +166,7 @@ def createCategory():
         connection.commit()
     else:
         print('ERROR in create-category: Category already exists')
+        flash("Could not create category. Category already exists.")
 
     connection.close()
     return redirect('/home')
@@ -183,8 +184,16 @@ def updateCategory(): ### TODO: just changed the category table, need to also ch
 
     row = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (old_category_name, session['username'],)).fetchone()
 
+    new_category_name_exists = cursor.execute("SELECT * FROM CATEGORY WHERE Category_Name=? AND User_Name=?", (new_category_name, session['username'],)).fetchone()
+
+    print(f'new cat: {new_category_name_exists}')
+
+    # User can keep the name of the same category.
+    if new_category_name_exists is not None and new_category_name_exists[0] == old_category_name:
+        new_category_name_exists = None
+
     # The row should exist if we want to update it.  <--- need to do something for the else
-    if row is not None and is_acceptable_number(new_budget):
+    if row is not None and new_category_name_exists is None and is_acceptable_number(new_budget):
         # Update the CATEGORY table
         cursor.execute("UPDATE CATEGORY SET Category_Name=?, Budget_Amount=? WHERE Category_Name=? AND User_Name=?", (new_category_name, f'{float(new_budget):.2f}', old_category_name, session['username'],))
 
@@ -194,6 +203,7 @@ def updateCategory(): ### TODO: just changed the category table, need to also ch
         connection.commit()
     else:
         print('ERROR in update-category: row does not exist, can\'t update!!!')
+        flash("Could not update category. Old category either does not exist, new category already exists and/or new budget input is invalid.")
 
     connection.close()
     return redirect('/home')
@@ -221,6 +231,7 @@ def deleteCategory():
         connection.commit()
     else:
         print('ERROR in remove-category: row does not exist, can\'t remove!!!')
+        flash("Could not delete category. Category does not exist.")
 
     connection.close()
     return redirect('/home')
@@ -257,6 +268,7 @@ def addTransaction():
         connection.commit()
     else:
         print(f'ERROR in create-category: No category name {category_name}')
+        flash("Could not add transaction. Category does not exist and/or money spent input is invalid.")
 
     connection.close()
 
@@ -286,6 +298,7 @@ def updateTransaction():
     
     else:
         print(f'ERROR in update-category: No transaction found with {old_transaction_id} , {category_name} and {session["username"]}')
+        flash("Could not update transaction. Category does not exist, transaction id is invalid and/or new money spent input is invalid.")
 
     connection.close()
 
@@ -318,7 +331,7 @@ def deleteTransaction():
         connection.commit()
     else:
         print(f'ERROR in delete-category: No transaction found with {transaction_id} , {category_name} and {session["username"]}')
-
+        flash("Could not delete transaction. Category does not exist and/or transaction id is invalid.")
 
     connection.close()
 
