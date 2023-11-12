@@ -31,37 +31,34 @@
     </header>
 
     <!-- HTML for the categories/transactions -->
-    <div class="flex flex-wrap">
-
         {% for category_name in user_expense_data['Category_Data'] %}
 
         <div
-            class="min-w-[40%] mb-5 mx-16 p-6 bg-white border border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+            class="min-w-[40%] mb-5 mx-16 p-6 bg-white border-2 border-black rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <div class="flex justify-between">
-                <h5 class="mb-2 mr-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ category_name }}</h5>
+                <h5 class="w-[50%] mb-2 mr-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ category_name }}</h5>
                 <div class="flex">
                     <p class="text-gray-500 text-lg">{{ user_expense_data['Category_Data'][category_name]['Total_Spent'] }}</p>
                     <p class="text-black text-xl">/{{ user_expense_data['Category_Data'][category_name]['Budget_Amount'] }}</p>
                 </div>
             </div>
 
-            <p class="mb-3 underline font-normal text-gray-700 dark:text-gray-400">Transactions</p>
-        
+            <p class="mb-3 text-lg underline font-normal text-gray-700 dark:text-gray-400">Transactions</p>
+
             <div id="transactions" class="flex flex-col h-full">
                 {% for transaction_id in user_expense_data['Category_Data'][category_name] %}
+                    {% if transaction_id != 'Total_Spent' and transaction_id != 'Budget_Amount' %}
                     <div class="flex flex-row h-full justify-between">
-                        {% if transaction_id != 'Total_Spent' and transaction_id != 'Budget_Amount' %}
-                        <p class="break-all w-36">{{ loop.index }} - {{ user_expense_data['Category_Data'][category_name][transaction_id]['Description'] }}</p>
-                        <p>${{ user_expense_data['Category_Data'][category_name][transaction_id]['Money_Spent'] }}</p>
-                        {% endif %}
+                        <p class="break-all w-[50%] text-lg">{{ loop.index }} - {{ user_expense_data['Category_Data'][category_name][transaction_id]['Description'] }}</p>
+                        <p class="text-lg">${{ user_expense_data['Category_Data'][category_name][transaction_id]['Money_Spent'] }}</p>
                     </div>
+                    <hr class="border-gray-300 border-solid">
+                    {% endif %}
                 {% endfor %}
             </div>
-
         </div>
+        
         {% endfor %}
-
-    </div>
 
     <!-- Modal for creating a category -->
     <div id="create-category-modal" aria-hidden="true" class="hidden mx-auto inset-0 fixed backdrop-blur-sm">
@@ -77,7 +74,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="15" required>
+                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="budget">
@@ -112,7 +109,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="old-category-name" name="old-category-name" placeholder="Enter Old Category Name" maxlength="15" required>
+                        type="text" id="old-category-name" name="old-category-name" placeholder="Enter Old Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="new-category-name">
@@ -120,7 +117,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="new-category-name" name="new-category-name" placeholder="Enter New Category Name" maxlength="15" required>
+                        type="text" id="new-category-name" name="new-category-name" placeholder="Enter New Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="new-budget">
@@ -155,7 +152,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="15" required>
+                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="30" required>
                 </div>
                 <div class="flex justify-center">
                     <button
@@ -182,7 +179,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="15" required>
+                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="transaction-description">
@@ -190,7 +187,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="transaction-description" name="transaction-description" placeholder="Enter Transaction Description" required>
+                        type="text" id="transaction-description" name="transaction-description" placeholder="Enter Transaction Description" maxlength="30" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="money-spent">
@@ -225,7 +222,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="15" required>
+                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="old-transaction-id">
@@ -241,7 +238,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="new-transaction-description" name="new-transaction-description" placeholder="Enter New Transaction Description" required>
+                        type="text" id="new-transaction-description" name="new-transaction-description" placeholder="Enter New Transaction Description" maxlength="30" required>
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="new-money-spent">
@@ -276,7 +273,7 @@
                     </label>
                     <input
                         class="shadow appearance-none border-black border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="15" required>
+                        type="text" id="category-name" name="category-name" placeholder="Enter Category Name" maxlength="30" required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="transaction-id">
