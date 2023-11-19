@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{url_for('static', filename='dist/css/output.css')}}">
     {% if title %}
-        {% if title == 'Home' %}
-            <script defer type="text/javascript" src="../static/js/categoryModal.js"></script>
-        {% endif %}
+    {% if title == 'Home' %}
+    <script defer type="text/javascript" src="../static/js/categoryModal.js"></script>
+    {% endif %}
     <title>{{title}}</title>
     {% else %}
     <title>Home</title>
@@ -27,7 +27,8 @@
             {% if homepage == "true": %}
             <div class="mr-10">
                 <form action="{{ url_for('logout') }}" method="GET">
-                    <input type="submit" value="Log Out" class="bg-white hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-14 border border-black rounded">
+                    <input type="submit" value="Log Out"
+                        class="bg-white hover:bg-[#9cd67a] text-black font-semibold hover:text-white py-2 px-14 border border-black rounded">
                 </form>
             </div>
             {% endif %}
